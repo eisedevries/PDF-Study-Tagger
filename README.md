@@ -2,10 +2,8 @@
 
 A small tool I built to help with exam prep as I couldn’t find anything similar online. It lets you tag and filter pages by color in large PDF slide decks to focus your studying. Built with PyQt6 and PyMuPDF.
 
-
 ## Preview
 ![Preview](preview.png)
-
 
 ## Features
 
@@ -14,28 +12,20 @@ A small tool I built to help with exam prep as I couldn’t find anything simila
   - Yellow → Review  
   - Red → Hard  
 
-- Filtering: Show only certain tag types based on checkboxes.
-
-- Thumbnail Sidebar: View all pages with tag colors. Works with filters.
-
-- Timeline Overview: Compact color bar for quick navigation an overview.
-
-- Text Search: Search pages with Ctrl+F.
-
-- Copy Tools:  
-  - C → Copy all text on page 
-  - Ctrl+C → Copy selected text  
-  - Shift+C → Copy page as image (for instance to easily paste into an LLM chatbot)  
+- Filtering: show only certain tag types based on checkboxes.
+- Thumbnail sidebar: View all pages with tag colors. Works with filters.
+- Timeline overview: Compact color bar for quick navigation an overview.
+- Text search: Search pages with Ctrl+F.
+- Copy tools: copy both text or the page as image to clipboard.
 
 ## Getting started
 This code was tested on Linux but should work on Windows and macOS.
 
 ### 1. Install Requirements
-pip install PyQt6 PyMuPDF (preferably in a [virtual environment](https://docs.python.org/3/library/venv.html)).
+pip install PyQt6 PyMuPDF ([virtual environment](https://docs.python.org/3/library/venv.html) is recommended).
 
 ### 2. Run the Tool
-Combine your slides into one PDF, then run:
-python pdf_tagger.py [optional_pdf_path]
+Combine your slides into one PDF, then run `python pdf_tagger.py [optional_pdf_path]`.
 
 Or just run without arguments and open a file through the app.
 
