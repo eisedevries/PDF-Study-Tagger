@@ -1281,21 +1281,27 @@ class PDFTaggerApp(QMainWindow):
             
     def run_search(self):
         """
-        Executes a search for the text in the search input box.
-        Populates `self.search_hits` with all results.
+        Executes a search when Enter is pressed.
+        If the same query is entered again, cycles through the found hits.
         """
         text = self.search_input.text().strip()
         if not text or not self.doc:
             self.reset_search_state()
             return
 
-        self.pdf_viewer_label.setFocus() # Move focus away from search input
+        # If same query as last time and hits already exist, just move to next
+        if hasattr(self, "_last_search_text") and self._last_search_text == text and self.search_hits:
+            self.current_hit_index = (self.current_hit_index + 1) % len(self.search_hits)
+            self.go_to_hit(self.current_hit_index)
+            self.update_search_status()
+            return
 
+        # New search query — find all matches
+        self._last_search_text = text
         hits = []
-        # Search only within the *visible* pages
         for page_num in self.visible_pages:
             page = self.doc.load_page(page_num)
-            rects = page.search_for(text) # Find all occurrences on page
+            rects = page.search_for(text)
             for r in rects:
                 hits.append((page_num, r))
 
@@ -1305,10 +1311,10 @@ class PDFTaggerApp(QMainWindow):
             self.update_search_status()
             return
 
-        # Go to the first hit
         self.current_hit_index = 0
         self.go_to_hit(self.current_hit_index)
         self.update_search_status()
+
 
     def resizeEvent(self, event):
         """Handles window resize. Re-renders the page."""
@@ -1327,7 +1333,7 @@ class PDFTaggerApp(QMainWindow):
         if page_num in self.visible_pages:
             self.current_page_index = self.visible_pages.index(page_num)
             self.render_page()
-            # TODO: Highlight the actual hit rectangle 'r'
+            self.center_sidebar_on_current()
 
     def search_next(self):
         """Goes to the next search hit in the list (wraps around)."""
