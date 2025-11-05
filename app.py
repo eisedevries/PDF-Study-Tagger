@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
     QSplitter, QToolButton, QCheckBox, QAbstractItemView
 )
 
-from PyQt6.QtGui import QPixmap, QImage, QKeySequence, QFont, QColor, QIcon, QPainter, QShortcut, QPen
+from PyQt6.QtGui import QPixmap, QImage, QKeySequence, QFont, QColor, QIcon, QPainter, QShortcut, QPen, QPalette
 from PyQt6.QtCore import Qt, QSize, QEvent, pyqtSignal, QRect
 
 # Define tag colors (hex codes for CSS/style)
@@ -1345,10 +1345,60 @@ class PDFTaggerApp(QMainWindow):
         self.go_to_hit(self.current_hit_index)
         self.update_search_status()
 
+def force_dark_mode(app):
+    """Apply a consistent dark mode palette and basic dark stylesheet."""
+    dark_palette = QPalette()
+
+    dark_palette.setColor(QPalette.ColorRole.Window, QColor(30, 30, 30))
+    dark_palette.setColor(QPalette.ColorRole.WindowText, QColor(220, 220, 220))
+    dark_palette.setColor(QPalette.ColorRole.Base, QColor(25, 25, 25))
+    dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(45, 45, 45))
+    dark_palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(50, 50, 50))
+    dark_palette.setColor(QPalette.ColorRole.ToolTipText, QColor(220, 220, 220))
+    dark_palette.setColor(QPalette.ColorRole.Text, QColor(220, 220, 220))
+    dark_palette.setColor(QPalette.ColorRole.Button, QColor(45, 45, 45))
+    dark_palette.setColor(QPalette.ColorRole.ButtonText, QColor(220, 220, 220))
+    dark_palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
+    dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(0, 120, 215))
+    dark_palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
+
+    app.setPalette(dark_palette)
+
+    app.setStyleSheet("""
+        QToolTip {
+            color: #ddd;
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+        }
+        QLineEdit, QPlainTextEdit, QTextEdit {
+            background-color: #202020;
+            color: #ddd;
+            border: 1px solid #555;
+        }
+        QPushButton {
+            background-color: #3a3a3a;
+            color: #ddd;
+            border: 1px solid #555;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+        QPushButton:hover {
+            background-color: #4a4a4a;
+        }
+        QCheckBox, QLabel {
+            color: #ddd;
+        }
+        QToolBar {
+            background-color: #2b2b2b;
+            spacing: 6px;
+            padding: 4px;
+        }
+    """)
 
 if __name__ == "__main__":
     # Main application entry point
     app = QApplication(sys.argv)
+    force_dark_mode(app)
     
     pdf_path = None
     # Allow passing PDF path as a command-line argument
