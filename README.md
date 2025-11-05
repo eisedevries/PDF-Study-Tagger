@@ -10,7 +10,7 @@ A small tool I built to help with exam prep as I couldn’t find anything simila
   - Green → Known  
   - Yellow → Review  
   - Red → Hard
-- Auto-jump: automatically move to the next page after tagging
+- Auto-jump: automatically move to the next page after tagging.
 - Filtering: show only certain tag types based on checkboxes.
 - Thumbnail sidebar: view all pages with tag colors. Works with filters.
 - Timeline overview: compact color bar for quick navigation an overview.
@@ -44,10 +44,10 @@ Or just run without arguments and open a file through the app.
 | Ctrl+A | Select all text on page |
 
 ## Mouse controls
-- Page View: Click and drag to select text  
-- Sidebar: Click to jump, Ctrl or Shift+Click to select multiple pages  
-- Timeline: Click to jump to a page  
-- Filter Area: Toggle which tag colors are shown  
+- Page View: Click and drag to select text.  
+- Sidebar: Click to jump, Ctrl or Shift+Drag to select multiple pages.  
+- Timeline: Click to jump to a page.  
+- Filter Area: Toggle which tag colors are shown.  
 
 ## Tag saving
 Tags are saved automatically to [your_pdf_name]_pdf-tagger-sav.json in the same folder as your PDF.
