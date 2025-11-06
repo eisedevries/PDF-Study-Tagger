@@ -110,13 +110,6 @@ class PDFPageView(QLabel):
         """Checks if there is an active selection rectangle."""
         return self._selection is not None and not self._selection.isEmpty()
 
-    def clear_selection(self):
-        """Clears the current text selection."""
-        self._selection = None
-        self._sel_word_rects = []
-        self.selectionChanged.emit()
-        self.update()
-
     def page_size_pts(self):
         """Returns the page width and height in points (PDF coordinates)."""
         if not self._page:
@@ -1041,34 +1034,6 @@ class PDFTaggerApp(QMainWindow):
             self.thumbnail_list_widget.setItemWidget(item, self.build_thumbnail_row(i))
 
         self.update_sidebar_filter_view()
-
-    def generate_thumbnail_icon(self, page_num):
-        """
-        Generates a QIcon for a page (with a colored dot for the tag).
-        Note: This function is not currently used, but was present.
-        """
-        try:
-            page = self.doc.load_page(page_num)
-            thumb_mat = fitz.Matrix(0.2, 0.2)
-            pix = page.get_pixmap(matrix=thumb_mat)
-            img_format = QImage.Format.Format_RGB888 if pix.alpha == 0 else QImage.Format.Format_RGBA8888
-            qimage = QImage(pix.samples, pix.width, pix.height, pix.stride, img_format)
-            pixmap = QPixmap.fromImage(qimage)
-            tag = self.page_tags.get(page_num, "none")
-            if tag != "none":
-                # Paint a colored dot on the thumbnail
-                painter = QPainter(pixmap)
-                color = QColor(TAG_COLORS[tag])
-                painter.setBrush(color)
-                painter.setPen(Qt.PenStyle.NoPen)
-                dot_size = int(pixmap.width() * 0.15)
-                margin = int(pixmap.width() * 0.05)
-                painter.drawEllipse(pixmap.width() - dot_size - margin, margin, dot_size, dot_size) 
-                painter.end()
-            return QIcon(pixmap)
-        except Exception as e:
-            print(f"Error generating thumbnail for page {page_num}: {e}")
-            return QIcon()
 
     def tag_multiple_pages(self, page_numbers, color):
         """Applies a tag to a list of page numbers and updates the UI."""
