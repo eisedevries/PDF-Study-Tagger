@@ -16,6 +16,7 @@ A small tool I built to help with exam prep as I couldn’t find anything simila
 - Timeline overview: compact color bar for quick navigation an overview.
 - Text search: search pages with Ctrl+F.
 - Copy tools: copy both text or the page as image to clipboard.
+- Export selection: export current selection as PDF.
 
 ## Getting started
 This code was tested on Linux but should work on Windows and macOS.
@@ -42,6 +43,7 @@ Or just run without arguments and open a file through the app.
 | Ctrl+C | Copy selected text |
 | Ctrl+F | Focus search box |
 | Ctrl+A | Select all text on page |
+| Ctrl+S | Save current selection as PDF |
 
 ## Mouse controls
 - Page View: Click and drag to select text.  
@@ -50,7 +52,7 @@ Or just run without arguments and open a file through the app.
 - Filter Area: Toggle which tag colors are shown.  
 
 ## Tag saving
-Tags are saved automatically to [your_pdf_name]_pdf-tagger-sav.json in the same folder as your PDF.
+Tags are saved automatically to `[your_pdf_name]_pdf-tagger-sav.json` in the same folder as your PDF.
 
 ## Known limitations
 - Text selection is a bit clunky.  

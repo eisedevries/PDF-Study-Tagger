@@ -766,6 +766,9 @@ class PDFTaggerApp(QMainWindow):
         make_shortcut(QKeySequence(QKeySequence.StandardKey.Find), self.focus_search) # Ctrl+F
         make_shortcut(QKeySequence(QKeySequence.StandardKey.SelectAll), self.select_all_text_on_slide) # Ctrl+A
 
+        # Save selection
+        make_shortcut(QKeySequence(QKeySequence.StandardKey.Save), self.export_filtered_pages)  # Ctrl+S
+        
     def copy_all_text_on_slide(self):
         """Copy all text from the current slide to the clipboard."""
         if not self.doc or not self.visible_pages:
@@ -869,6 +872,8 @@ class PDFTaggerApp(QMainWindow):
         toolbar.addAction("Open", self.open_file)
         toolbar.addAction("Sidebar", self.toggle_sidebar)
         toolbar.addSeparator()
+        export_action = toolbar.addAction("Export selection", self.export_filtered_pages)
+        toolbar.addSeparator()
         
         # Navigation actions
         toolbar.addAction("Prev", self.prev_page)
@@ -905,16 +910,12 @@ class PDFTaggerApp(QMainWindow):
         is_visible = self.thumbnail_list_widget.isVisible()
         self.thumbnail_list_widget.setVisible(not is_visible)
 
-    # def toggle_sidebar(self): # Note: This method was duplicated in the original
-    #     is_visible = self.thumbnail_list_widget.isVisible()
-    #     self.thumbnail_list_widget.setVisible(not is_visible)
-
     def on_selection_changed(self):
         """
         Handles selection changes in the sidebar.
         If a single item is clicked, navigates to that page.
         """
-        self.thumbnail_list_widget.setFocus() # Give focus to sidebar
+        self.thumbnail_list_widget.setFocus()
         current_item = self.thumbnail_list_widget.currentItem()
         if not current_item:
             return
@@ -926,6 +927,44 @@ class PDFTaggerApp(QMainWindow):
             if self.visible_pages[self.current_page_index] != page_num:
                 self.current_page_index = self.visible_pages.index(page_num)
                 self.render_page()
+
+    def export_filtered_pages(self):
+        """Exports currently visible (filtered) pages to a single PDF."""
+        if not self.doc or not self.visible_pages or not self.pdf_path:
+            return
+
+        base_name = os.path.splitext(os.path.basename(self.pdf_path))[0]
+        default_name = f"{base_name}_filtered.pdf"
+
+        save_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save filtered PDF as",
+            os.path.join(os.path.dirname(self.pdf_path), default_name),
+            "PDF Files (*.pdf)"
+        )
+        if not save_path:
+            return
+
+        try:
+            new_pdf = fitz.open()
+
+            # Sort visible pages and copy in as few ranges as possible
+            visible_sorted = sorted(self.visible_pages)
+            start = visible_sorted[0]
+            end = start
+            for idx in range(1, len(visible_sorted)):
+                if visible_sorted[idx] == end + 1:
+                    end = visible_sorted[idx]
+                else:
+                    new_pdf.insert_pdf(self.doc, from_page=start, to_page=end)
+                    start = end = visible_sorted[idx]
+            new_pdf.insert_pdf(self.doc, from_page=start, to_page=end)
+
+            new_pdf.save(save_path, deflate=True)  # deflate compresses streams
+            new_pdf.close()
+            print(f"Filtered PDF saved to {save_path}")
+        except Exception as e:
+            print(f"Error exporting filtered PDF: {e}")
 
     def open_file(self):
         """Opens a QFileDialog to select a new PDF file."""
@@ -971,12 +1010,6 @@ class PDFTaggerApp(QMainWindow):
                 self.timeline_strip.set_total_pages(self.total_pages)
                 self.timeline_strip.set_page_tags(self.page_tags)
                 self.timeline_strip.set_current_file_page(self.visible_pages[self.current_page_index] if self.visible_pages else 0)
-            
-            # Note: These lines were duplicated in the original
-            # self.timeline_strip.set_total_pages(self.total_pages)
-            # self.timeline_strip.set_page_tags(self.page_tags)
-            # self.timeline_strip.set_current_file_page(self.visible_pages[self.current_page_index] if self.visible_pages else 0)
-
 
         except Exception as e:
             print(f"Error loading PDF: {e}")
@@ -1252,8 +1285,6 @@ class PDFTaggerApp(QMainWindow):
         # self.timeline_strip.set_current_file_page(actual_page_num) # Note: Duplicated
         if hasattr(self, "timeline_strip"):
             self.timeline_strip.set_current_file_page(actual_page_num)
-
-
 
     def copy_selected_text(self):
         """Copies the currently selected text from the PDF view to the clipboard."""
