@@ -462,21 +462,20 @@ class TimelineStrip(QWidget):
         cur_w = max(2, cur_x1 - cur_x0) # Width of the highlight
 
         # Draw a white box outline for the current page
-        pen = QPen(QColor("#FFFFFF"))
-        pen.setWidth(2)
-        pen.setJoinStyle(Qt.PenJoinStyle.MiterJoin)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing, False) # Sharp rect
-        painter.setPen(pen)
+        outer_pen = QPen(QColor("#000000"))
+        outer_pen.setWidth(1)
+        outer_pen.setJoinStyle(Qt.PenJoinStyle.MiterJoin)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
+        painter.setPen(outer_pen)
+        painter.drawLine(cur_x0 - 1, 0, cur_x0 - 1, h - 1)
+        painter.drawLine(cur_x0 + cur_w, 0, cur_x0 + cur_w, h - 1)
 
-        # Draw the 4 sides of the highlight box
-        x1 = cur_x0 + cur_w - 1
-        y1 = 1
-        x2 = cur_x0 + cur_w - 1
-        y2 = h - 2
-        painter.drawLine(cur_x0, y1, x1, y1)
-        painter.drawLine(cur_x0, y1, cur_x0, y2)
-        painter.drawLine(x1, y1, x1, y2)
-        painter.drawLine(cur_x0, y2, x1, y2)
+        # Draw white inner indicator
+        inner_pen = QPen(QColor("#FFFFFF"))
+        inner_pen.setWidth(1)
+        inner_pen.setJoinStyle(Qt.PenJoinStyle.MiterJoin)
+        painter.setPen(inner_pen)
+        painter.drawRect(cur_x0, 1, cur_w - 1, h - 2)
 
         painter.end()
 
