@@ -44,6 +44,7 @@ Or just run without arguments and open a file through the app.
 | Ctrl+F | Focus search box |
 | Ctrl+A | Select all text on page |
 | Ctrl+S | Save current selection as PDF |
+| Enter | Go to next match in search |
 
 ## Mouse controls
 - Page View: Click and drag to select text.  

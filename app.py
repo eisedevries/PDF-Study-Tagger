@@ -13,7 +13,7 @@ import os
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QFileDialog,
     QToolBar, QLineEdit, QHBoxLayout, QFrame, QListWidget, QListWidgetItem,
-    QSplitter, QToolButton, QCheckBox, QAbstractItemView
+    QSplitter, QToolButton, QCheckBox, QAbstractItemView, QSizePolicy
 )
 
 from PyQt6.QtGui import QPixmap, QImage, QKeySequence, QFont, QColor, QIcon, QPainter, QShortcut, QPen, QPalette
@@ -866,39 +866,49 @@ class PDFTaggerApp(QMainWindow):
     def setup_toolbar(self):
         """Creates and configures the main application toolbar."""
         toolbar = QToolBar("Main Toolbar")
+        toolbar.setMovable(False)
         self.addToolBar(toolbar)
 
         # File/View actions
         toolbar.addAction("Open", self.open_file)
         toolbar.addAction("Sidebar", self.toggle_sidebar)
         toolbar.addSeparator()
-        export_action = toolbar.addAction("Export selection", self.export_filtered_pages)
-        toolbar.addSeparator()
-        
+
         # Navigation actions
         toolbar.addAction("Prev", self.prev_page)
         toolbar.addAction("Next", self.next_page)
         toolbar.addSeparator()
-        
-        # Search controls
+
+        # Export action
+        export_action = toolbar.addAction("Export selection", self.export_filtered_pages)
+        toolbar.addSeparator()
+
+        # Spacer to push search controls to the right
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        toolbar.addWidget(spacer)
+
+        # Search controls (right-aligned)
         self.search_input = QLineEdit(self)
         self.search_input.setPlaceholderText("Search (Ctrl+F)")
         self.search_input.returnPressed.connect(self.run_search)
+        self.search_input.setFixedWidth(200)
         toolbar.addWidget(self.search_input)
 
         self.search_prev_btn = QToolButton(self)
         self.search_prev_btn.setText("Prev")
-        self.search_prev_btn.clicked.connect(self.search_prev)
+        self.search_prev_btn.clicked.connect(self.on_search_prev_clicked)
         toolbar.addWidget(self.search_prev_btn)
 
         self.search_next_btn = QToolButton(self)
         self.search_next_btn.setText("Next")
-        self.search_next_btn.clicked.connect(self.search_next)
+        self.search_next_btn.clicked.connect(self.on_search_next_clicked)
         toolbar.addWidget(self.search_next_btn)
 
         self.search_status_label = QLabel("0 matches")
         self.search_status_label.setStyleSheet("padding-left: 6px; color: #AAA;")
         toolbar.addWidget(self.search_status_label)
+
 
     def focus_search(self):
         """Selects the search input text field."""
@@ -1123,10 +1133,7 @@ class PDFTaggerApp(QMainWindow):
             print(f"Error saving tags: {e}")
 
     def on_filter_checkbox_changed(self):
-        """
-        Called when any filter checkbox is toggled.
-        Updates the `self.active_filters` set and refreshes the view.
-        """
+        """Called when any filter checkbox is toggled."""
         selected = set()
         if self.cb_green.isChecked():
             selected.add("green")
@@ -1144,8 +1151,18 @@ class PDFTaggerApp(QMainWindow):
             self.active_filters = selected
 
         self.update_filter_view()
+
+        # Force search refresh when filters change
+        if self.search_input.text().strip():
+            # Reset last search to ensure re-search even with same text
+            self._last_search_text = None
+            self.run_search()
+        else:
+            self.reset_search_state()
+
         if self.visible_pages:
             self.center_sidebar_on_current()
+
 
     def update_tag_counts_label(self):
         """Updates the status bar label with counts and percentages of tags."""
@@ -1236,6 +1253,26 @@ class PDFTaggerApp(QMainWindow):
 
         self.render_page()
         self.center_sidebar_on_current()
+
+    def on_search_next_clicked(self):
+        """Handle clicking Next: perform search if needed, else go to next hit."""
+        text = self.search_input.text().strip()
+        if not text:
+            return
+        if not self.search_hits:  # No search yet
+            self.run_search()
+        else:
+            self.search_next()
+
+    def on_search_prev_clicked(self):
+        """Handle clicking Prev: perform search if needed, else go to previous hit."""
+        text = self.search_input.text().strip()
+        if not text:
+            return
+        if not self.search_hits:  # No search yet
+            self.run_search()
+        else:
+            self.search_prev()
 
 
     def update_sidebar_filter_view(self):
